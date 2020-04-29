@@ -41,6 +41,24 @@ class PhpMatrix
         $this->sizeArea = $this->row * $this->column;
     }
 
+    public function is_row_array(array $arr): bool
+    {
+        return is_array($arr[0]);
+    }
+
+    public function transpose(self $arr): self
+    {
+        $trans = [];
+        for ($i = 0; $i < count($arr->matrix); $i++) {
+            # code...
+            for ($j = 0; $j < count($arr->matrix[0]); $j++) {
+                # code...
+                $trans[$j][$i] = $arr->matrix[$i][$j];
+            }
+        }
+        return new self($trans);
+    }
+
     public function init_zeros($size, $rows = null): self
     {
         $arr = array_fill(0, $size, 0);
@@ -65,10 +83,7 @@ class PhpMatrix
         if (!is_array($arr[0])) {
             throw new Exception("Error: array not a 2D matrix");
         }
-        foreach ($arr[0] as $key => $value) {
-            array_push($col, $arr[0][$key]);
-        }
-        return $col;
+        return array_column($arr, $index);
     }
 
     /** append arr to matrix. interface to array_push **/
@@ -121,7 +136,7 @@ class PhpMatrix
         $product = [];
         if (is_array($var)) {
             if (!is_array($var[0])) {
-                throw new Exception("Error: array is not a matrix");
+                $var = $this->transpose(new self($var));
             }
             if ($this->row != count($var[0])) {
                 throw new Exception("Error: array size missmatch");
@@ -129,9 +144,10 @@ class PhpMatrix
 
             $dp = new PhpNum();
             $product = $this->init_zeros($this->row, count($var[0]));
-            for ($i = 0; $i < count($product); $i++) {
-                for ($j = 0; $j < count($product[0]); $j++) {
-                    $product[$i][$j] = $dp->dot_product($this->matrix[$i], $this->get_col($var, $j));
+            foreach ($product as $key => $value) {
+                for ($j = 0; $j < count($value); $j++) {
+                    // dot product between row and col
+                    $product->matrix[$key][$j] = $dp->dot_product($this->matrix[$key], $this->get_col($var, $j));
                 }
             }
         } else {

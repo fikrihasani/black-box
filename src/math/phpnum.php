@@ -22,7 +22,6 @@ class PhpNum
         return $product;
     }
 
-
     public function cosine_similarity(array $arr1, array $arr2): float
     {
         if (!is_array($arr1) || !is_array($arr2)) {
@@ -49,5 +48,40 @@ class PhpNum
             throw new Exception("Error: Input not an Array. found: " . gettype($arr1) . " and " . gettype($arr2));
         }
         return 1 - $this->cosine_similarity($arr1, $arr2);
+    }
+
+    public function euclidian_distance(array $arr1, array $arr2): float
+    {
+        if (!is_array($arr1) || !is_array($arr2)) {
+            # code...
+            throw new Exception("Error: Input not an Array. found: " . gettype($arr1) . " and " . gettype($arr2));
+        }
+
+        $res = 0;
+        foreach ($arr1 as $key => $value) {
+            # code...
+            $res += pow(($arr1[$key] - $arr2[$key]), 2);
+        }
+
+        return sqrt($res);
+    }
+
+    /*
+        below is the functions needed to compute activatio function for NN and several ML aplications
+    */
+    public function sigmoid($x): float
+    {
+        return 1 / (1 + exp(-$x));
+    }
+
+    public function relu($x, $a = 0): float
+    {
+        return max($a, $x);
+    }
+
+    public function tanh($x)
+    {
+        return (exp($x) - exp(-$x)) / (exp($x) + exp(-$x));
+        // or just call build in php tanh function 
     }
 }
