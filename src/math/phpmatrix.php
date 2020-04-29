@@ -22,9 +22,9 @@ class PhpMatrix
             throw new Exception("Error: list is not an array");
         }
         $is_matrix = false;
-        if (is_array($list[0])) {
-            $list = [$list];
-            $is_matrix = true;
+        if (!is_array($list[0])) {
+            // $list = [$list];
+            $is_matrix = false;
         }
         $this->matrix = $list;
         $this->set_param(true, $is_matrix);
@@ -49,6 +49,7 @@ class PhpMatrix
     public function transpose(self $arr): self
     {
         $trans = [];
+
         for ($i = 0; $i < count($arr->matrix); $i++) {
             # code...
             for ($j = 0; $j < count($arr->matrix[0]); $j++) {
@@ -59,15 +60,18 @@ class PhpMatrix
         return new self($trans);
     }
 
-    public function init_zeros($size, $rows = null): self
+    public function init_values($size, $rows = null, $values = 0): self
     {
         $arr = array_fill(0, $size, 0);
+        // print_r($arr);
         if (!is_null($rows)) {
             # code...
             foreach ($arr as $key => $value) {
                 $arr[$key] = array_fill(0, $rows, 0);
             }
         }
+
+        print_r($arr);
 
         return new self($arr);
     }
@@ -143,7 +147,7 @@ class PhpMatrix
             }
 
             $dp = new PhpNum();
-            $product = $this->init_zeros($this->row, count($var[0]));
+            $product = $this->init_values($this->row, count($var[0]));
             foreach ($product as $key => $value) {
                 for ($j = 0; $j < count($value); $j++) {
                     // dot product between row and col
