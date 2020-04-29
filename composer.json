@@ -1,5 +1,5 @@
 {
-  "name": "fikrihasani/black-box",
+  "name": "fikrihasani/tusker-brain",
   "description": "PHP library for math and various machine learning and AI tasks",
   "type": "library",
   "require-dev": {
