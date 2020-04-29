@@ -3,7 +3,7 @@
 namespace BlackBox\Math;
 
 use Exception;
-use BlackBox\Math\PhpNum;
+use TuskerBrain\Math\PhpNum;
 
 /** PHP implementation for matrix and matrix operations**/
 class PhpMatrix
