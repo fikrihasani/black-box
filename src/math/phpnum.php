@@ -1,6 +1,6 @@
 <?php
 
-namespace BlackBox\Math;
+namespace TuskerBrain\Math;
 
 use Exception;
 
