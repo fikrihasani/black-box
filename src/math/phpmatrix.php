@@ -9,11 +9,11 @@ use TuskerBrain\Math\PhpNum;
 class PhpMatrix
 {
 
-    private array $matrix;
-    private string $size;
-    private int $row;
-    private int $column;
-    private int $sizeArea;
+    public array $matrix;
+    public string $size;
+    public int $row;
+    public int $column;
+    public int $sizeArea;
 
     public function __construct(array $list)
     {
@@ -21,13 +21,13 @@ class PhpMatrix
             # code...
             throw new Exception("Error: list is not an array");
         }
-        $matrix = false;
+        $is_matrix = false;
         if (is_array($list[0])) {
             $list = [$list];
-            $matrix = true;
+            $is_matrix = true;
         }
-        $this->set_param(true, $matrix);
         $this->matrix = $list;
+        $this->set_param(true, $is_matrix);
     }
 
     /* 
