@@ -8,72 +8,43 @@ use TuskerBrain\Math\PhpNum;
 /** PHP implementation for matrix and matrix operations**/
 class PhpMatrix
 {
-
-    public array $matrix;
-    public string $size;
-    public int $row;
-    public int $column;
-    public int $sizeArea;
-
-    public function __construct(array $list)
-    {
-        if (!is_array($list)) {
-            # code...
-            throw new Exception("Error: list is not an array");
-        }
-        $is_matrix = false;
-        if (!is_array($list[0])) {
-            // $list = [$list];
-            $is_matrix = false;
-        }
-        $this->matrix = $list;
-        $this->set_param(true, $is_matrix);
-    }
-
-    /* 
-        set params. called every time array size changed like dot product or multiplications
-    */
-    private function set_param(bool $valid, bool $matrix): void
-    {
-        $this->row = count($this->matrix);
-        $this->column = $matrix ? count($this->matrix[0]) : 1;
-        $this->size = "rows: " . strval($this->row) . ", columns: " . strval($this->column);
-        $this->sizeArea = $this->row * $this->column;
-    }
-
     public function is_row_array(array $arr): bool
     {
         return is_array($arr[0]);
     }
 
-    public function transpose(self $arr): self
+    public function transpose(array $arr): array
     {
         $trans = [];
 
-        for ($i = 0; $i < count($arr->matrix); $i++) {
-            # code...
-            for ($j = 0; $j < count($arr->matrix[0]); $j++) {
+        if ($this->is_row_array($arr)) {
+            for ($i = 0; $i < count($arr); $i++) {
                 # code...
-                $trans[$j][$i] = $arr->matrix[$i][$j];
+                $trans[$i] = [$arr[$i]];
+            }
+        } else {
+            for ($i = 0; $i < count($arr); $i++) {
+                # code...
+                for ($j = 0; $j < count($arr[0]); $j++) {
+                    # code...
+                    $trans[$j][$i] = $arr[$i][$j];
+                }
             }
         }
-        return new self($trans);
+        return $trans;
     }
 
-    public function init_values($size, $rows = null, $values = 0): self
+    public function init_values($size, $rows = null, $values = 0): array
     {
         $arr = array_fill(0, $size, 0);
-        // print_r($arr);
         if (!is_null($rows)) {
-            # code...
             foreach ($arr as $key => $value) {
                 $arr[$key] = array_fill(0, $rows, 0);
             }
         }
 
-        print_r($arr);
 
-        return new self($arr);
+        return $arr;
     }
 
     private function get_row(array $arr, int $index): array
@@ -91,56 +62,84 @@ class PhpMatrix
     }
 
     /** append arr to matrix. interface to array_push **/
-    public function append(array $arr): void
+    public function append(array $arr1, array $arr2): array
     {
-        array_push($this->matrix, $arr);
+        array_push($arr1, $arr2);
+        return $arr1;
+    }
+
+
+    public function get_size(array $arr): array
+    {
+        return array($this->get_row_size($arr), $this->get_col_size($arr));
+    }
+
+    public function get_col_size(array $arr): int
+    {
+        return count($arr[0]);
+    }
+    public function get_row_size(array $arr): int
+    {
+        return count($arr);
     }
 
     /** perform array operations**/
-    public function add($var): self
+    public function add(array $array, $var): array
     {
         $arr = [];
         if (is_array($var)) {
             for ($i = 0; $i < count($var); $i++) {
                 for ($j = 0; $j < count($var[0]); $j++) {
-                    $arr[$i][$j] = $this->matrix + $var[$i][$j];
+                    $arr[$i][$j] = $array[$i][$j] + $var[$i][$j];
                 }
             }
         } else {
-            for ($i = 0; $i < count($var); $i++) {
-                for ($j = 0; $j < count($var[0]); $j++) {
-                    $arr[$i][$j] = $this->matrix + $var;
+            for ($i = 0; $i < count($array); $i++) {
+                for ($j = 0; $j < count($array[0]); $j++) {
+                    $arr[$i][$j] = $array[$i][$j] + $var;
                 }
             }
         }
-        return new self($arr);
+        return $arr;
     }
 
-    public function substraction($var): self
+    public function is_matrix(array $array): bool
     {
-        $arr = [];
+        return ((is_array($array[0]) && is_array($array[1]) && (count($array[0]) === count($array[1]))));
+    }
+
+    public function substraction(array $arr, $var): array
+    {
+        $arr_res = [];
         if (is_array($var)) {
-            for ($i = 0; $i < count($var); $i++) {
-                for ($j = 0; $j < count($var[0]); $j++) {
-                    $arr[$i][$j] = $this->matrix - $var[$i][$j];
+            if ($this->is_matrix($var)) {
+                for ($i = 0; $i < count($arr); $i++) {
+                    for ($j = 0; $j < count($arr[0]); $j++) {
+                        $arr_res[$i][$j] = $arr[$i][$j] - $var[$i][$j];
+                    }
+                }
+            } else {
+                foreach ($arr as $key => $value) {
+                    # code...
+                    $arr_res[$key] = $value - $var[$key];
                 }
             }
         } else {
-            for ($i = 0; $i < count($var); $i++) {
-                for ($j = 0; $j < count($var[0]); $j++) {
-                    $arr[$i][$j] = $this->matrix - $var;
+            for ($i = 0; $i < count($arr); $i++) {
+                for ($j = 0; $j < count($arr); $j++) {
+                    $arr_res[$i][$j] = $arr[$i][$j] - $var;
                 }
             }
         }
-        return new self($arr);
+        return $arr_res;
     }
 
-    public function multiply($var): self
+    public function multiply(array $arr, $var): array
     {
         $product = [];
         if (is_array($var)) {
             if (!is_array($var[0])) {
-                $var = $this->transpose(new self($var));
+                $var = $this->transpose($var);
             }
             if ($this->row != count($var[0])) {
                 throw new Exception("Error: array size missmatch");
@@ -151,16 +150,16 @@ class PhpMatrix
             foreach ($product as $key => $value) {
                 for ($j = 0; $j < count($value); $j++) {
                     // dot product between row and col
-                    $product->matrix[$key][$j] = $dp->dot_product($this->matrix[$key], $this->get_col($var, $j));
+                    $product[$key][$j] = $dp->dot_product($arr[$key], $this->get_col($var, $j));
                 }
             }
         } else {
-            for ($i = 0; $i < count($var); $i++) {
-                for ($j = 0; $j < count($var[0]); $j++) {
-                    $product[$i][$j] = $this->matrix[$i][$j] * $var;
+            for ($i = 0; $i < count($arr); $i++) {
+                for ($j = 0; $j < count($arr[0]); $j++) {
+                    $product[$i][$j] = $arr[$i][$j] * $var;
                 }
             }
         }
-        return new self($product);
+        return $product;
     }
 }
