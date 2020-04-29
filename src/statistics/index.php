@@ -1,6 +1,6 @@
 <?php
 
-namespace BlackBox\Statistics;
+namespace TuskerBrain\Statistics;
 
 use Exception;
 
