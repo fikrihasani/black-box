@@ -1,0 +1,23 @@
+{
+  "name": "fikrihasani/black-box",
+  "description": "PHP library for math and various machine learning and AI tasks",
+  "type": "library",
+  "require-dev": {
+    "phpunit/phpunit": "^9.1"
+  },
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "fikrihasani",
+      "email": "mfikrihasani@gmail.com"
+    }
+  ],
+  "require": {
+    "php": "^7.2"
+  },
+  "autoload": {
+    "psr-4": {
+      "BlackBox\\": "src/"
+    }
+  }
+}
