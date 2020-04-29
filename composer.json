@@ -17,7 +17,7 @@
   },
   "autoload": {
     "psr-4": {
-      "BlackBox\\": "src/"
+      "TuskerBrain\\": "src/"
     }
   }
 }
