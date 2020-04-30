@@ -3,10 +3,9 @@
 namespace TuskerBrain\Math;
 
 use Exception;
-use TuskerBrain\Math\PhpNum;
 
 /** PHP implementation for matrix and matrix operations**/
-class PhpMatrix
+class TuskMatrix
 {
     public function is_row_array(array $arr): bool
     {
@@ -145,7 +144,7 @@ class PhpMatrix
                 throw new Exception("Error: array size missmatch");
             }
 
-            $dp = new PhpNum();
+            $dp = new NumTusk();
             $product = $this->init_values($this->row, count($var[0]));
             foreach ($product as $key => $value) {
                 for ($j = 0; $j < count($value); $j++) {

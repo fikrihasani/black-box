@@ -5,7 +5,7 @@ namespace TuskerBrain\Math;
 use Exception;
 
 /** PHP implementation for everything related to mathematical function as a base**/
-class PhpNum
+class NumTusk
 {
     /** dot product**/
     public function dot_product(array $arr1, array $arr2): float
