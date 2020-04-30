@@ -9,36 +9,28 @@ class TuskMatrix
 {
     public function is_row_array(array $arr): bool
     {
-        return is_array($arr[0]);
+        return count($arr) === 1;
     }
 
     public function transpose(array $arr): array
     {
         $trans = [];
 
-        if ($this->is_row_array($arr)) {
-            for ($i = 0; $i < count($arr); $i++) {
-                # code...
-                $trans[$i] = [$arr[$i]];
-            }
-        } else {
-            for ($i = 0; $i < count($arr); $i++) {
-                # code...
-                for ($j = 0; $j < count($arr[0]); $j++) {
-                    # code...
-                    $trans[$j][$i] = $arr[$i][$j];
-                }
+        for ($i = 0; $i < count($arr); $i++) {
+            for ($j = 0; $j < count($arr[0]); $j++) {
+                $trans[$j][$i] = $arr[$i][$j];
             }
         }
         return $trans;
     }
 
-    public function init_values($size, $rows = null, $values = 0): array
+    public function init_values($rows, $cols = 1, $values = null): array
     {
-        $arr = array_fill(0, $size, 0);
-        if (!is_null($rows)) {
-            foreach ($arr as $key => $value) {
-                $arr[$key] = array_fill(0, $rows, 0);
+        $arr = [];
+
+        foreach (range(0, $cols - 1) as $col) {
+            foreach (range(0, $rows - 1) as $row) {
+                $arr[$row][$col] = isset($values) ? $values : rand();
             }
         }
 
@@ -70,13 +62,14 @@ class TuskMatrix
 
     public function get_size(array $arr): array
     {
-        return array($this->get_row_size($arr), $this->get_col_size($arr));
+        return array("row" => $this->get_row_size($arr), "col" => $this->get_col_size($arr));
     }
 
     public function get_col_size(array $arr): int
     {
         return count($arr[0]);
     }
+
     public function get_row_size(array $arr): int
     {
         return count($arr);
@@ -86,11 +79,17 @@ class TuskMatrix
     public function add(array $array, $var): array
     {
         $arr = [];
+        $array = is_array($array[0]) ? $array : [$array];
         if (is_array($var)) {
-            for ($i = 0; $i < count($var); $i++) {
-                for ($j = 0; $j < count($var[0]); $j++) {
-                    $arr[$i][$j] = $array[$i][$j] + $var[$i][$j];
+            $var = is_array($var[0]) ? $var : [$var];
+            if ($this->get_size($array) === $this->get_size($var)) {
+                for ($i = 0; $i < count($var); $i++) {
+                    for ($j = 0; $j < count($var[0]); $j++) {
+                        $arr[$i][$j] = $array[$i][$j] + $var[$i][$j];
+                    }
                 }
+            } else {
+                throw new Exception("Error: array doesnt have identical size");
             }
         } else {
             for ($i = 0; $i < count($array); $i++) {
@@ -110,18 +109,17 @@ class TuskMatrix
     public function substraction(array $arr, $var): array
     {
         $arr_res = [];
+        $arr = is_array($arr[0]) ? $arr : [$arr];
         if (is_array($var)) {
-            if ($this->is_matrix($var)) {
+            $var = is_array($var[0]) ? $var : [$var];
+            if ($this->get_size($arr) === $this->get_size($var)) {
                 for ($i = 0; $i < count($arr); $i++) {
                     for ($j = 0; $j < count($arr[0]); $j++) {
                         $arr_res[$i][$j] = $arr[$i][$j] - $var[$i][$j];
                     }
                 }
             } else {
-                foreach ($arr as $key => $value) {
-                    # code...
-                    $arr_res[$key] = $value - $var[$key];
-                }
+                throw new Exception("Error: array doesnt have identical size");
             }
         } else {
             for ($i = 0; $i < count($arr); $i++) {
@@ -136,16 +134,18 @@ class TuskMatrix
     public function multiply(array $arr, $var): array
     {
         $product = [];
+        $arr = is_array($arr[0]) ? $arr : [$arr];
         if (is_array($var)) {
-            if (!is_array($var[0])) {
+            $dp = new NumTusk();
+            $var = is_array($var[0]) ? $var : [$var];
+            if ($this->is_row_array($var)) {
                 $var = $this->transpose($var);
             }
-            if ($this->row != count($var[0])) {
-                throw new Exception("Error: array size missmatch");
-            }
 
-            $dp = new NumTusk();
-            $product = $this->init_values($this->row, count($var[0]));
+            if ($this->get_col_size($arr) != $this->get_row_size($var)) {
+                throw new Exception("Error: Array size invalid for multiplication", 1);
+            }
+            $product = $this->init_values($this->get_row_size($arr), $this->get_col_size($var));
             foreach ($product as $key => $value) {
                 for ($j = 0; $j < count($value); $j++) {
                     // dot product between row and col
@@ -153,6 +153,9 @@ class TuskMatrix
                 }
             }
         } else {
+            if (!$this->is_row_array($arr) && !$this->is_matrix($var)) {
+                throw new Exception("Error: array size invalid");
+            }
             for ($i = 0; $i < count($arr); $i++) {
                 for ($j = 0; $j < count($arr[0]); $j++) {
                     $product[$i][$j] = $arr[$i][$j] * $var;

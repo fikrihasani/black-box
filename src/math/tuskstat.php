@@ -1,10 +1,11 @@
 <?php
 
-namespace TuskerBrain\Statistics;
+namespace TuskerBrain\Math;
 
 use Exception;
+use TuskerBrain\Math\TuskMatrix;
 
-class Statistics
+class TuskStat
 {
     /*
         return mean of array. if row matrix directly return the mean.
@@ -16,23 +17,27 @@ class Statistics
         if (!is_array($arr[0])) {
             return array_sum($arr) / count($arr);
         }
+
+        $tmp = [];
         if (!is_null($axis)) {
             // perform columns wise operation
-            if ($axis = 0) {
+            if ($axis == 0) {
                 foreach ($arr as $key => $value) {
-                    $arr[$key] = array_sum($arr[$key]) / count($arr[$key]);
+                    $tmp[$key] = array_sum($arr[$key]) / count($arr[$key]);
                 }
-                return $arr;
+                return $tmp;
             }
             // perform columns wise operation
-            elseif ($axis = 1) {
-                $tmp = [];
+            elseif ($axis == 1) {
+                $tm = new TuskMatrix();
+                if (!$tm->is_matrix($arr)) {
+                    # code...
+                    throw new Exception("Error: Array isnt a valid matrix", 1);
+                }
                 foreach ($arr[0] as $key => $value) {
-                    for ($i = 0; $i < count($arr[0]); $i++) {
-                        $columns = array_column($arr, $i);
-                        $tmp[$key] = array_sum($columns) / count($columns);
-                        # code...
-                    }
+                    $columns = array_column($arr, $key);
+                    $tmp[$key] = array_sum($columns) / count($columns);
+                    # code...
                 }
                 return $tmp;
             } else {
@@ -42,11 +47,8 @@ class Statistics
             // perform mean to all elements
             $tmp = [];
             foreach ($arr[0] as $key => $value) {
-                for ($i = 0; $i < count($arr[0]); $i++) {
-                    $columns = array_column($arr, $i);
-                    $tmp[$key] = array_sum($columns) / count($columns);
-                    # code...
-                }
+                $columns = array_column($arr, $key);
+                $tmp[$key] = array_sum($columns) / count($columns);
             }
             return array_sum($tmp) / count($tmp);
         }
