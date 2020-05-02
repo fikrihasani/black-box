@@ -7,6 +7,21 @@ use Exception;
 /** PHP implementation for matrix and matrix operations**/
 class TuskMatrix
 {
+    public $col;
+    public $row;
+    public $matrix;
+    public function __construct($row=null,$col=null)
+    {
+        $arr = [];
+
+        foreach (range(0, $col - 1) as $col) {
+            foreach (range(0, $row - 1) as $row) {
+                $arr[$row][$col] = 0;
+            }
+        }
+
+        $this->matrix=$arr;
+    }
     public function is_row_array(array $arr): bool
     {
         return count($arr) === 1;
@@ -36,6 +51,26 @@ class TuskMatrix
 
 
         return $arr;
+    }
+
+    //Init Matrix with zero value
+    public function init_zeros($rows, $cols = 1): array{
+        $arr = [];
+
+        foreach (range(0, $cols - 1) as $col) {
+            foreach (range(0, $rows - 1) as $row) {
+                $arr[$row][$col] = 0;
+            }
+        }
+
+
+        return $arr;
+    }
+
+    //Push array into matrix
+
+    public function from_array(array $arr){
+        array_push($this->matrix,$arr);
     }
 
     private function get_row(array $arr, int $index): array
