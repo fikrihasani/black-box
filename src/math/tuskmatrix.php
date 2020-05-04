@@ -114,14 +114,14 @@ class TuskMatrix
         $arr = [];
         if (is_array($var)) {
             $var = is_array($var[0]) ? $var : [$var];
-            if ($this->get_size() === array(count($var), count($var[0]))) {
+            if ($this->size === array(count($var), count($var[0]))) {
                 foreach (range(0, count($var) - 1) as $i) {
                     foreach (range(0, count($var[0]) - 1) as $j) {
                         $arr[$i][$j] = $this->matrix[$i][$j] + $var[$i][$j];
                     }
                 }
             } else {
-                throw new Exception("Error: array doesnt have identical size");
+                throw new Exception("Error: array doesnt have identical size, found: $this->row,$this->col with " . count($var) . "," . count($var[0]));
             }
         } else {
             foreach (range(0, $this->row - 1) as $i) {
@@ -150,7 +150,7 @@ class TuskMatrix
                     }
                 }
             } else {
-                throw new Exception("Error: array doesnt have identical size");
+                throw new Exception("Error: array doesnt have identical size, found: $this->row,$this->col with " . count($var) . "," . count($var[0]));
             }
         } else {
             for ($i = 0; $i < $this->row; $i++) {
@@ -178,16 +178,20 @@ class TuskMatrix
         $var = is_array($var[0]) ? $var : [$var];
         if ($this->col != count($var)) {
             print($this->col . " with " . count($var));
-            throw new Exception("Error: Array size invalid for multiplication", 1);
+            throw new Exception("Error: Array size invalid for multiplication, found: $this->col with " . count($var), 1);
         }
 
         if ($element_wise) {
             # code...
-            foreach ($this->matrix as $key => $value) {
-                for ($j = 0; $j < count($value); $j++) {
-                    // dot product between row and col
-                    $product[$key][$j] = $this->matrix[$key][$j] * $var[$key][$j];
+            if ($this->get_size() === array(count($var), count($var[0]))) {
+                foreach ($this->matrix as $key => $value) {
+                    for ($j = 0; $j < count($value); $j++) {
+                        // dot product between row and col
+                        $product[$key][$j] = $this->matrix[$key][$j] * $var[$key][$j];
+                    }
                 }
+            } else {
+                throw new Exception("Error: array doesnt have identical size, found: $this->row,$this->col with " . count($var) . "," . count($var[0]));
             }
         }
         $product = $this->init_zeros($this->row, count($var[0]));
