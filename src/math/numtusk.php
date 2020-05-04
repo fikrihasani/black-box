@@ -1,7 +1,7 @@
 <?php
 
 namespace TuskerBrain\Math\NumTusk;
-
+// now using namespace onlye
 use Exception;
 
 function dot_product(array $arr1, array $arr2): float
