@@ -4,42 +4,57 @@ namespace TuskerBrain\Math;
 
 use Exception;
 
+use function TuskerBrain\Math\Numtusk\dot_product;
+use function TuskerBrain\Math\Numtusk\euclidian_distance;
+
 /** PHP implementation for matrix and matrix operations**/
 class TuskMatrix
 {
-    public $col;
-    public $row;
-    public $matrix;
-    public function __construct($row=null,$col=null)
+    public int $col;
+    public int $row;
+    public array $matrix;
+    public array $shape;
+    public function __construct(array $arr = null)
     {
-        $arr = [];
-
-        foreach (range(0, $col - 1) as $col) {
-            foreach (range(0, $row - 1) as $row) {
-                $arr[$row][$col] = 0;
-            }
+        if (!isset($arr)) {
+            # code...
+            $this->matrix = [[]];
         }
 
-        $this->matrix=$arr;
+        $this->matrix = is_array($arr[0]) ? $arr : [$arr];
+        $this->init_param();
     }
+
+    private function init_param()
+    {
+        $this->shape = $this->get_size();
+        $this->row = count($this->matrix);
+        $this->col = count($this->matrix[0]);
+    }
+
+    private function get_size(): array
+    {
+        return array(count($this->matrix), count($this->matrix[0]));
+    }
+
     public function is_row_array(array $arr): bool
     {
         return count($arr) === 1;
     }
 
-    public function transpose(array $arr): array
+    public function transpose(array $arr): self
     {
-        $trans = [];
-
-        for ($i = 0; $i < count($arr); $i++) {
-            for ($j = 0; $j < count($arr[0]); $j++) {
-                $trans[$j][$i] = $arr[$i][$j];
+        $trans = $this->init_zeros(count($arr[0]), count($arr));
+        foreach (range(0, count($arr) - 1) as $i) {
+            foreach (range(0, count($arr[0]) - 1) as $j) {
+                $trans->matrix[$j][$i] = $arr[$i][$j];
             }
         }
+
         return $trans;
     }
 
-    public function init_values($rows, $cols = 1, $values = null): array
+    public function init_values($rows, $cols = 1, $values = null): self
     {
         $arr = [];
 
@@ -50,13 +65,13 @@ class TuskMatrix
         }
 
 
-        return $arr;
+        return new self($arr);
     }
 
     //Init Matrix with zero value
-    public function init_zeros($rows, $cols = 1): array{
+    public function init_zeros($rows, $cols = 1): self
+    {
         $arr = [];
-
         foreach (range(0, $cols - 1) as $col) {
             foreach (range(0, $rows - 1) as $row) {
                 $arr[$row][$col] = 0;
@@ -64,76 +79,58 @@ class TuskMatrix
         }
 
 
-        return $arr;
+        return new self($arr);
     }
 
     //Push array into matrix
-
-    public function from_array(array $arr){
-        array_push($this->matrix,$arr);
-    }
-
-    private function get_row(array $arr, int $index): array
+    public function from_array(array $arr): self
     {
-        return $arr[$index];
+
+        return new self($arr);
     }
 
-    private function get_col(array $arr, int $index): array
+    private function get_row(int $index): self
+    {
+        return new self($this->matrix[$index]);
+    }
+
+    private function get_col(int $index): self
     {
         $col = [];
-        if (!is_array($arr[0])) {
-            throw new Exception("Error: array not a 2D matrix");
-        }
-        return array_column($arr, $index);
+        return new self(array_column($this->matrix, $index));
     }
 
     /** append arr to matrix. interface to array_push **/
-    public function append(array $arr1, array $arr2): array
+    public function append(array $arr)
     {
-        array_push($arr1, $arr2);
-        return $arr1;
+        array_push($this->matrix, $arr);
     }
 
 
-    public function get_size(array $arr): array
-    {
-        return array("row" => $this->get_row_size($arr), "col" => $this->get_col_size($arr));
-    }
-
-    public function get_col_size(array $arr): int
-    {
-        return count($arr[0]);
-    }
-
-    public function get_row_size(array $arr): int
-    {
-        return count($arr);
-    }
 
     /** perform array operations**/
-    public function add(array $array, $var): array
+    public function add($var): self
     {
         $arr = [];
-        $array = is_array($array[0]) ? $array : [$array];
         if (is_array($var)) {
             $var = is_array($var[0]) ? $var : [$var];
-            if ($this->get_size($array) === $this->get_size($var)) {
-                for ($i = 0; $i < count($var); $i++) {
-                    for ($j = 0; $j < count($var[0]); $j++) {
-                        $arr[$i][$j] = $array[$i][$j] + $var[$i][$j];
+            if ($this->get_size() === array(count($var), count($var[0]))) {
+                foreach (range(0, count($var) - 1) as $i) {
+                    foreach (range(0, count($var[0]) - 1) as $j) {
+                        $arr[$i][$j] = $this->matrix[$i][$j] + $var[$i][$j];
                     }
                 }
             } else {
                 throw new Exception("Error: array doesnt have identical size");
             }
         } else {
-            for ($i = 0; $i < count($array); $i++) {
-                for ($j = 0; $j < count($array[0]); $j++) {
-                    $arr[$i][$j] = $array[$i][$j] + $var;
+            foreach (range(0, $this->row - 1) as $i) {
+                foreach (range(0, $this->col - 1) as $j) {
+                    $arr[$i][$j] = $this->matrix[$i][$j] + $var[$i][$j];
                 }
             }
         }
-        return $arr;
+        return new self($arr);
     }
 
     public function is_matrix(array $array): bool
@@ -141,60 +138,63 @@ class TuskMatrix
         return ((is_array($array[0]) && is_array($array[1]) && (count($array[0]) === count($array[1]))));
     }
 
-    public function substraction(array $arr, $var): array
+    public function substraction($var): self
     {
         $arr_res = [];
-        $arr = is_array($arr[0]) ? $arr : [$arr];
         if (is_array($var)) {
             $var = is_array($var[0]) ? $var : [$var];
-            if ($this->get_size($arr) === $this->get_size($var)) {
-                for ($i = 0; $i < count($arr); $i++) {
-                    for ($j = 0; $j < count($arr[0]); $j++) {
-                        $arr_res[$i][$j] = $arr[$i][$j] - $var[$i][$j];
+            if ($this->get_size() === array(count($var), count($var[0]))) {
+                for ($i = 0; $i < $this->row; $i++) {
+                    for ($j = 0; $j < $this->col; $j++) {
+                        $arr_res[$i][$j] = $this->matrix[$i][$j] - $var[$i][$j];
                     }
                 }
             } else {
                 throw new Exception("Error: array doesnt have identical size");
             }
         } else {
-            for ($i = 0; $i < count($arr); $i++) {
-                for ($j = 0; $j < count($arr); $j++) {
-                    $arr_res[$i][$j] = $arr[$i][$j] - $var;
+            for ($i = 0; $i < $this->row; $i++) {
+                for ($j = 0; $j < $this->col; $j++) {
+                    $arr_res[$i][$j] = $this->matrix[$i][$j] - $var;
                 }
             }
         }
-        return $arr_res;
+        return new self($arr_res);
     }
 
-    public function multiply(array $arr, $var): array
+    public function mul_scalar($var): self
+    {
+        $product = $this->init_zeros($this->row, $this->col);
+        for ($i = 0; $i < count($this->row); $i++) {
+            for ($j = 0; $j < count($this->col); $j++) {
+                $product->matrix[$i][$j] = $this->matrix[$i][$j] * $var;
+            }
+        }
+        return $product;
+    }
+    public function matmul(array $var, bool $element_wise = false): self
     {
         $product = [];
-        $arr = is_array($arr[0]) ? $arr : [$arr];
-        if (is_array($var)) {
-            $dp = new NumTusk();
-            $var = is_array($var[0]) ? $var : [$var];
-            if ($this->is_row_array($var)) {
-                $var = $this->transpose($var);
-            }
+        $var = is_array($var[0]) ? $var : [$var];
+        if ($this->col != count($var)) {
+            print($this->col . " with " . count($var));
+            throw new Exception("Error: Array size invalid for multiplication", 1);
+        }
 
-            if ($this->get_col_size($arr) != $this->get_row_size($var)) {
-                throw new Exception("Error: Array size invalid for multiplication", 1);
-            }
-            $product = $this->init_values($this->get_row_size($arr), $this->get_col_size($var));
-            foreach ($product as $key => $value) {
+        if ($element_wise) {
+            # code...
+            foreach ($this->matrix as $key => $value) {
                 for ($j = 0; $j < count($value); $j++) {
                     // dot product between row and col
-                    $product[$key][$j] = $dp->dot_product($arr[$key], $this->get_col($var, $j));
+                    $product[$key][$j] = $this->matrix[$key][$j] * $var[$key][$j];
                 }
             }
-        } else {
-            if (!$this->is_row_array($arr) && !$this->is_matrix($var)) {
-                throw new Exception("Error: array size invalid");
-            }
-            for ($i = 0; $i < count($arr); $i++) {
-                for ($j = 0; $j < count($arr[0]); $j++) {
-                    $product[$i][$j] = $arr[$i][$j] * $var;
-                }
+        }
+        $product = $this->init_zeros($this->row, count($var[0]));
+        foreach ($product->matrix as $key => $value) {
+            for ($j = 0; $j < count($value); $j++) {
+                // dot product between row and col
+                $product->matrix[$key][$j] = dot_product($this->matrix[$key], $this->get_col($j)->matrix);
             }
         }
         return $product;
